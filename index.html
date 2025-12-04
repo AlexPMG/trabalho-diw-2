@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokewiki - Início</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { 
+      background-color: #f5faff; 
+      font-family: Arial, sans-serif; 
+      padding-top: 80px; 
+    }
+
+    .banner img { 
+      max-width: 100%; 
+      height: auto; 
+      border-radius: 15px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    }
+
+    .card { 
+      border-radius: 15px; 
+      overflow: hidden; 
+      transition: transform 0.3s ease, box-shadow 0.3s ease; 
+      cursor: pointer; 
+    }
+    .card:hover { 
+      transform: translateY(-5px); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+    }
+
+    .card-img { 
+      position: relative; 
+      height: 180px; 
+      background-color: #fff; 
+    }
+    .card-img .static, .card-img .gif { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      transition: opacity 0.3s ease; 
+    }
+    .card-img .gif { opacity: 0; }
+    .card-img:hover .gif { opacity: 1; }
+    .card-img:hover .static { opacity: 0; }
+
+    #carouselDestaque { 
+      border-radius: 15px; 
+      overflow: hidden; 
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+      max-height: 500px; 
+    }
+    .carousel-item { 
+      height: 500px; 
+    }
+    .carousel-item img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      transition: transform 0.5s ease; 
+      border-radius: 15px; 
+    }
+    .carousel-item a:hover img { 
+      transform: scale(1.05); 
+    }
+    .carousel-caption { 
+      background-color: rgba(0,0,0,0.5); 
+      border-radius: 10px; 
+      padding: 10px 15px; 
+    }
+    .carousel-caption h5 { 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.7); 
+    }
+    .carousel-caption p { 
+      font-size: 1rem; 
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7); 
+    }
+
+    footer { 
+      background-color: #222; 
+      color: #fff; 
+      text-align: center; 
+      padding: 1rem; 
+      margin-top: 3rem; 
+    }
+
+    h2.section-title { 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      margin: 2rem 0 1rem; 
+      border-left: 5px solid #007bff; 
+      padding-left: 10px; 
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">
+      <i class="bi bi-diamond-half text-danger"></i> Pokewiki
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="pokemon-menu"></ul>
+      <div class="d-flex" id="auth-buttons">
+        <!-- Os botões serão preenchidos pelo JavaScript -->
+      </div>
+    </div>
+  </div>
+</nav>
+
+  <section class="banner container my-4">
+    <img src="pokemonbanner.jpg" alt="Pokémon Banner" class="img-fluid mx-auto d-block">
+  </section>
+
+  <main class="container">
+    <h2 class="section-title">Pokemon em Destaque</h2>
+    <div id="carouselDestaque" class="carousel slide mb-5" data-bs-ride="carousel">
+      <div class="carousel-indicators" id="carousel-indicators"></div>
+      <div class="carousel-inner" id="destaque-pokemons"></div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaque" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaque" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+
+    <h2 class="section-title">Todos os Pokemon</h2>
+    <div class="row g-4" id="lista-pokemons"></div>
+
+    <script>
+  // Verifica se o usuário está logado
+  document.addEventListener('DOMContentLoaded', () => {
+    const usuarioLogado = localStorage.getItem('usuarioLogado');
+    const authButtons = document.getElementById('auth-buttons');
+    
+    if (authButtons) {
+      if (usuarioLogado) {
+        const usuario = JSON.parse(usuarioLogado);
+        authButtons.innerHTML = `
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                    data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> ${usuario.apelido || usuario.nome.split(' ')[0]}
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">
+                <i class="bi bi-person"></i> Meu Perfil
+              </a></li>
+              <li><a class="dropdown-item" href="#">
+                <i class="bi bi-star"></i> Meus Favoritos
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" id="btn-logout">
+                <i class="bi bi-box-arrow-right"></i> Sair
+              </button></li>
+            </ul>
+          </div>
+        `;
+        
+        // Adiciona evento de logout
+        document.getElementById('btn-logout').addEventListener('click', () => {
+          localStorage.removeItem('usuarioLogado');
+          window.location.reload();
+        });
+      } else {
+        authButtons.innerHTML = `
+          <a href="login.html" class="btn btn-outline-primary me-2">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </a>
+          <a href="cadastro.html" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Cadastrar
+          </a>
+        `;
+      }
+    }
+  });
+</script>
+
+    <section class="mt-5">
+      <h2 class="section-title">Informações do(a) Aluno(a)</h2>
+      <div class="p-3 bg-white shadow-sm rounded">
+        <p><strong>Nome:</strong> Alex Prieto</p>
+        <p><strong>Curso:</strong> Análise e Desenvolvimento de Sistemas</p>
+        <p><strong>Turma:</strong> Periodo 1, Segundo Semestre 2025, Noite, PUC Minas São Gabriel</p>
+        <p><strong>Sobre:</strong> Trabalho prático de DIW, Wikipédia sobre Pokemon.</p>
+        <p><strong>Links:</strong> 
+          <a href="https://github.com/AlexPMG" class="text-decoration-none text-primary" target="_blank">GitHub</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Aluno: Alex Prieto | PUC Minas - São Gabriel</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
